@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 
 
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var iv8: ImageView
     lateinit var iv9: ImageView
     lateinit var txtWinner: TextView
+    lateinit var swFirstTurn: Switch
     var xTurn = true
     var gameOver = true
     var numberOfTurns = 0
@@ -40,8 +42,9 @@ class MainActivity : AppCompatActivity() {
         iv8 = findViewById<ImageView>(R.id.iv8)
         iv9 = findViewById<ImageView>(R.id.iv9)
         txtWinner = findViewById<TextView>(R.id.txtWinner)
+        swFirstTurn = findViewById<Switch>(R.id.swFirstTurn)
 
-        // starts a new game, turns all the spaces blank
+        // starts a new game, turns all the spaces blank, sets gameOver to false and sets number of turns to 0
         btnStartGame.setOnClickListener(View.OnClickListener {
             //region ImageView Game Setup
             iv1.setImageDrawable(getDrawable(R.drawable.blank_background))
@@ -82,7 +85,10 @@ class MainActivity : AppCompatActivity() {
             //endregion
 
             gameOver = false
-            xTurn = true // maybe don't have so it alternates. Or maybe have user choose whether to alternate or not...
+            // sets the first turn to X if the switch is not selected
+            if (!swFirstTurn.isChecked) {
+                xTurn = true
+            }
             txtWinner.text = ""
             numberOfTurns = 0
         })
@@ -128,17 +134,23 @@ class MainActivity : AppCompatActivity() {
 
     // sets the section that was clicked to the correct image
     private fun takeTurn(iv: ImageView) {
+        // increases the turn counter by 1
         numberOfTurns++
+
+            // if it X's turn to go, display an X, and save it as such
             if (xTurn) {
                 iv.setImageDrawable(getDrawable(R.drawable.x))
                 iv.isClickable = false
                 iv.tag = "X"
-            } else {
+            }
+            // or O
+            else {
                 iv.setImageDrawable(getDrawable(R.drawable.o))
                 iv.isClickable = false
                 iv.tag = "O"
             }
 
+        // only checks for a winner once 5 turns have been taken (not possible to win before that)
         if (numberOfTurns >= 5) {
             checkForWinner()
 
@@ -149,16 +161,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // displays that it is a tie if the number of turns is 9 and nobody has won yet
         if (numberOfTurns == 9 && !gameOver){
             txtWinner.text = "It's a tie!"
         }
 
+        // changes whose turn it is
         xTurn = !xTurn
     }
 
 
     private fun checkForWinner(){
-        // check horizontal
+        // checks horizontal
         if ((iv1.tag == "X" && iv2.tag == "X" && iv3.tag == "X") ||
             (iv4.tag == "X" && iv5.tag == "X" && iv6.tag == "X") ||
             (iv7.tag == "X" && iv8.tag == "X" && iv9.tag == "X") ||
@@ -168,7 +182,7 @@ class MainActivity : AppCompatActivity() {
             gameOver = true
         }
 
-        // check vertical
+        // checks vertical
         if ((iv1.tag == "X" && iv4.tag == "X" && iv7.tag == "X") ||
             (iv2.tag == "X" && iv5.tag == "X" && iv8.tag == "X") ||
             (iv3.tag == "X" && iv6.tag == "X" && iv9.tag == "X") ||
@@ -178,7 +192,7 @@ class MainActivity : AppCompatActivity() {
             gameOver = true
         }
 
-        // check diagonal
+        // checks diagonal
         if ((iv1.tag == "X" && iv5.tag == "X" && iv9.tag == "X") ||
             (iv7.tag == "X" && iv5.tag == "X" && iv3.tag == "X") ||
             (iv1.tag == "O" && iv5.tag == "O" && iv9.tag == "O") ||
